@@ -25,6 +25,8 @@ import org.matsim.core.utils.collections.CollectionUtils;
 import org.matsim.pt2matsim.config.OsmConverterConfigGroup;
 import org.matsim.pt2matsim.config.PublicTransitMappingConfigGroup;
 import org.matsim.pt2matsim.run.*;
+import org.matsim.pt2matsim.run.gis.Network2Geojson;
+import org.matsim.pt2matsim.run.gis.Schedule2Geojson;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,12 +41,12 @@ import java.util.concurrent.ExecutionException;
  */
 public final class PT2MATSimExample {
 
-    private static final String example = "example/";
+    private static final String example = "pt2matsim/";
     private static final String input = example + "input/";
     private static final String inter = example + "intermediate/";
     private static final String output = example + "output/";
 
-    private static final String addisonCountyEPSG = "EPSG:2032";
+    private static final String manchesterEPSG = "EPSG:27700";
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         prepare();
@@ -61,11 +63,11 @@ public final class PT2MATSimExample {
         // Do not use this approach if you have either GTFS or HAFS/HRDF data available
         // osmToSchedule();
 
-        // 2. Convert an osm map to a MATSim network
+        // 2. Convert an osm map to a MATSim network [we don't do that, we already have the matsim network from jibe]
         // create a config file (or adjust an existing one by hand)
-        createOsmConfigFile( inter + "OsmConverterConfig.xml" );
+        // createOsmConfigFile( inter + "OsmConverterConfig.xml" );
         // Convert the OSM file using the config
-        Osm2MultimodalNetwork.main(new String[]{ inter + "OsmConverterConfig.xml" });
+        // Osm2MultimodalNetwork.main(new String[]{ inter + "OsmConverterConfig.xml" });
 
         // 3. Map the schedule onto the network
         // create a config file (or adjust an existing one by hand)
@@ -93,12 +95,12 @@ public final class PT2MATSimExample {
     public static void gtfsToSchedule() {
         String[] gtfsConverterArgs = new String[]{
                 // [0] gtfs zip file
-                input + "addisoncounty-vt-us-gtfs.zip",
+                input + "merged_gtfs_greater_manchester.zip",
                 // [1] which service ids should be used. One of the following:
                 //		dayWithMostTrips, date in the format yyyymmdd, , dayWithMostServices, all
                 "dayWithMostTrips",
                 // [2] the output coordinate system. Use WGS84 for no transformation.
-                addisonCountyEPSG,
+                manchesterEPSG,
                 // [3] output transit schedule file
                 inter + "schedule_unmapped.xml.gz",
                 // [4] output default vehicles file (optional)
@@ -140,7 +142,7 @@ public final class PT2MATSimExample {
                 // [1] output schedule file
                 inter + "schedule_osm.xml.gz",
                 // [2] output coordinate system (optional)
-                addisonCountyEPSG
+                manchesterEPSG
         };
         Osm2TransitSchedule.main(osmConverterArgs);
     }
@@ -163,7 +165,7 @@ public final class PT2MATSimExample {
 
         OsmConverterConfigGroup osmConfig = ConfigUtils.addOrGetModule(osmConverterConfig, OsmConverterConfigGroup.class);
         osmConfig.setOsmFile(input + "addison.osm.gz");
-        osmConfig.setOutputCoordinateSystem(addisonCountyEPSG);
+        osmConfig.setOutputCoordinateSystem(manchesterEPSG);
         osmConfig.setOutputNetworkFile(inter + "addison.xml.gz");
 
         // Save the createOsmConfigFile config (usually done manually)
@@ -186,10 +188,10 @@ public final class PT2MATSimExample {
                 PublicTransitMappingConfigGroup.createDefaultConfig());
         PublicTransitMappingConfigGroup ptmConfig = ConfigUtils.addOrGetModule(config, PublicTransitMappingConfigGroup.class);
 
-        ptmConfig.setInputNetworkFile(inter + "addison.xml.gz");
-        ptmConfig.setOutputNetworkFile(output + "addison_multimodalnetwork.xml.gz");
-        ptmConfig.setOutputScheduleFile(output+ "addison_schedule.xml.gz");
-        ptmConfig.setOutputStreetNetworkFile(output + "addison_streetnetwork.xml.gz");
+        ptmConfig.setInputNetworkFile(inter + "network.xml.gz");
+        ptmConfig.setOutputNetworkFile(output + "manchester_multimodal_network.xml.gz");
+        ptmConfig.setOutputScheduleFile(output+ "manchester_schedule.xml.gz");
+        ptmConfig.setOutputStreetNetworkFile(output + "manchester_streetnetwork.xml.gz");
         ptmConfig.setInputScheduleFile(inter + "schedule_unmapped.xml.gz");
         ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail, light_rail"));
         // Save the mapping config
@@ -205,9 +207,9 @@ public final class PT2MATSimExample {
      */
     public static void checkPlausibility() {
         CheckMappedSchedulePlausibility.run(
-                output + "addison_schedule.xml.gz",
-                output + "addison_multimodalnetwork.xml.gz",
-                addisonCountyEPSG,
+                output + "manchester_schedule.xml.gz",
+                output + "manchester_multimodal_network.xml.gz",
+                manchesterEPSG,
                 output + "plausibilityResults/"
         );
     }
