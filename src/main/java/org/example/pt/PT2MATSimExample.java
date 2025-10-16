@@ -195,6 +195,10 @@ public final class PT2MATSimExample {
         ptmConfig.setOutputStreetNetworkFile(output + "manchester_streetnetwork.xml.gz");
         ptmConfig.setInputScheduleFile(inter + "schedule_unmapped.xml.gz");
         ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail, light_rail"));
+
+        int maxThreads = Math.min(Runtime.getRuntime().availableProcessors(), 20); // Cap at 16
+        ptmConfig.setNumOfThreads(maxThreads);
+
         // Save the mapping config
         // (usually done manually)
         new ConfigWriter(config).write(configFile);
