@@ -45,6 +45,7 @@ public final class PT2MATSimExample {
     private static final String input = example + "input/";
     private static final String inter = example + "intermediate/";
     private static final String output = example + "output/";
+    private static final String external = "input/mito/trafficAssignment/";
 
     private static final String manchesterEPSG = "EPSG:27700";
 
@@ -188,7 +189,7 @@ public final class PT2MATSimExample {
                 PublicTransitMappingConfigGroup.createDefaultConfig());
         PublicTransitMappingConfigGroup ptmConfig = ConfigUtils.addOrGetModule(config, PublicTransitMappingConfigGroup.class);
 
-        ptmConfig.setInputNetworkFile(inter + "network.xml.gz");
+        ptmConfig.setInputNetworkFile(external + "network_base.xml");
         ptmConfig.setOutputNetworkFile(output + "manchester_multimodal_network.xml.gz");
         ptmConfig.setOutputScheduleFile(output+ "manchester_schedule.xml.gz");
         ptmConfig.setOutputStreetNetworkFile(output + "manchester_streetnetwork.xml.gz");
