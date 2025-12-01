@@ -18,12 +18,21 @@
 
 package org.example.pt;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.geotools.referencing.CRS;
+import org.matsim.api.core.v01.Id;
+import org.matsim.api.core.v01.network.Network;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.ConfigWriter;
 import org.matsim.core.utils.collections.CollectionUtils;
+import org.matsim.pt.transitSchedule.api.TransitSchedule;
 import org.matsim.pt2matsim.config.OsmConverterConfigGroup;
 import org.matsim.pt2matsim.config.PublicTransitMappingConfigGroup;
+import org.matsim.pt2matsim.plausibility.PlausibilityCheck;
 import org.matsim.pt2matsim.run.*;
 import org.matsim.pt2matsim.run.gis.Network2Geojson;
 import org.matsim.pt2matsim.run.gis.Schedule2Geojson;
@@ -33,6 +42,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.matsim.api.core.v01.Id;
+import org.matsim.pt2matsim.tools.NetworkTools;
+import org.matsim.pt2matsim.tools.ScheduleTools;
 
 /**
  * Usage test of PT2MATSim to document how the package can be used. The example region
@@ -79,7 +94,7 @@ public final class PT2MATSimExample {
         PublicTransitMapper.main(new String[]{inter + "MapperConfigAdjusted.xml"});
 
         // 4. Do a plausibility check
-        checkPlausibility();
+        checkPlausibility2();
     }
 
     /** Create output folder if not existing **/
@@ -217,12 +232,41 @@ public final class PT2MATSimExample {
      * 	checked for plausibility.
      */
     public static void checkPlausibility() {
+
         CheckMappedSchedulePlausibility.run(
                 output + "manchester_schedule.xml.gz",
                 output + "manchester_multimodal_network.xml.gz",
                 manchesterEPSG,
                 output + "plausibilityResults/"
         );
+    }
+
+    public static void checkPlausibility2() {
+        String scheduleFile = output + "manchester_schedule.xml.gz";
+        String networkFile  = output + "manchester_multimodal_network.xml.gz";
+        String crs          = manchesterEPSG;
+        // CRS "; // e.g. "EPSG:27700" or whatever you use
+        String resultFolder = output + "plausibilityResults/";
+
+        new java.io.File(resultFolder).mkdirs();
+
+        TransitSchedule schedule = ScheduleTools.readTransitSchedule(scheduleFile);
+        Network network = NetworkTools.readNetwork(networkFile);
+
+        PlausibilityCheck check = new PlausibilityCheck(schedule, network, crs);
+
+        check.runCheck();                                     // ← does all the real work
+        check.writeCsv(resultFolder + "allPlausibilityWarnings.csv");  // ← perfect CSV, no error
+        check.printStatisticsLog();                                     // ← prints the nice summary with artificial links, loops, etc.
+
+        // Optional but nice: network as GeoJSON (this one works without any problem)
+        Network2Geojson.run(crs, network, resultFolder + "network.geojson");
+
+        System.out.println("================================================================");
+        System.out.println("Plausibility check finished perfectly – no Jackson errors anymore!");
+        System.out.println("CSV warnings  : " + resultFolder + "allPlausibilityWarnings.csv");
+        System.out.println("Network GeoJSON: " + resultFolder + "network.geojson");
+        System.out.println("================================================================");
     }
 
 }
