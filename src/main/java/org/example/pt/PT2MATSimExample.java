@@ -30,6 +30,8 @@ import org.matsim.pt2matsim.run.gis.Schedule2Geojson;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -96,7 +98,7 @@ public final class PT2MATSimExample {
     public static void gtfsToSchedule() {
         String[] gtfsConverterArgs = new String[]{
                 // [0] gtfs zip file
-                input + "merged_gtfs_greater_manchester.zip",
+                input + "all-modes-adjusted-gtfs.zip",
                 // [1] which service ids should be used. One of the following:
                 //		dayWithMostTrips, date in the format yyyymmdd, , dayWithMostServices, all
                 "dayWithMostTrips",
@@ -195,6 +197,10 @@ public final class PT2MATSimExample {
         ptmConfig.setOutputStreetNetworkFile(output + "manchester_streetnetwork.xml.gz");
         ptmConfig.setInputScheduleFile(inter + "schedule_unmapped.xml.gz");
         ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail, light_rail"));
+
+
+        // ptmConfig.getTransportModeAssignment().put("bus", Set.of("car", "bus"));
+        // ptmConfig.getTransportModeAssignment().put("tram", Set.of("tram")); // TODO: check if tram should be mapped to physical network
 
         int maxThreads = Math.min(Runtime.getRuntime().availableProcessors(), 20); // Cap at 16
         ptmConfig.setNumOfThreads(maxThreads);
