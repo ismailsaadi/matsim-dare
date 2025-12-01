@@ -27,6 +27,11 @@
             <artifactId>pt2matsim</artifactId>
             <version>25.8</version>
         </dependency>
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
+            <version>8.5.18</version>
+        </dependency>
     </dependencies>
 
 </project>
