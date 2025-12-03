@@ -206,10 +206,10 @@ public final class PT2MATSimExample {
                 PublicTransitMappingConfigGroup.createDefaultConfig());
         PublicTransitMappingConfigGroup ptmConfig = ConfigUtils.addOrGetModule(config, PublicTransitMappingConfigGroup.class);
 
-        ptmConfig.setInputNetworkFile(external + "network_base.xml");
-        ptmConfig.setOutputNetworkFile(output + "manchester_multimodal_network.xml.gz");
+        ptmConfig.setInputNetworkFile(output + "network_with_tramLinks.xml.gz");
+        ptmConfig.setOutputNetworkFile(output + "multimodal_network.xml.gz");
         ptmConfig.setOutputScheduleFile(output+ "manchester_schedule.xml.gz");
-        ptmConfig.setOutputStreetNetworkFile(output + "manchester_streetnetwork.xml.gz");
+        ptmConfig.setOutputStreetNetworkFile(output + "multimodal_streetnetwork.xml.gz");
         ptmConfig.setInputScheduleFile(inter + "schedule_unmapped.xml.gz");
         ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail, light_rail"));
 

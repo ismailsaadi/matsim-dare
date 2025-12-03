@@ -11,13 +11,18 @@ import java.util.Set;
 
 public class preparePTNetwork {
 
+    private static final String example = "pt2matsim/";
+    private static final String external = "input/mito/trafficAssignment/";
+    private static final String input = example + "input/";
+    private static final String output = example + "output/";
+
     public static void main(String[] args) {
-        Network baseNetwork = NetworkUtils.readNetwork("C:\\Users\\saadi\\Documents\\Cambridge\\manchester\\input\\mito\\trafficAssignment\\network.xml.gz");
-        Network tramNetwork = NetworkUtils.readNetwork("C:\\Users\\saadi\\Documents\\Cambridge\\dare\\pt\\greater_manchester_metrolink_matsim_network.xml.gz");  // <-- the NEW file with osmID
+        Network baseNetwork = NetworkUtils.readNetwork(external + "network_base.xml");
+        Network tramNetwork = NetworkUtils.readNetwork(input + "greater_manchester_metrolink_matsim_network.xml.gz");  // <-- the NEW file with osmID
 
         mergeTramNetworkIntoBase(baseNetwork, tramNetwork);
 
-        NetworkUtils.writeNetwork(baseNetwork, "C:\\Users\\saadi\\Documents\\Cambridge\\dare\\pt\\multimodal_network.xml.gz");
+        NetworkUtils.writeNetwork(baseNetwork, output + "network_with_tramLinks.xml.gz");
 
         System.out.println("✅ Tram network merged successfully!");
     }
