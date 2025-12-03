@@ -235,7 +235,7 @@ public final class PT2MATSimExample {
 
         CheckMappedSchedulePlausibility.run(
                 output + "manchester_schedule.xml.gz",
-                output + "manchester_multimodal_network.xml.gz",
+                output + "multimodal_network.xml.gz",
                 manchesterEPSG,
                 output + "plausibilityResults/"
         );
@@ -243,7 +243,7 @@ public final class PT2MATSimExample {
 
     public static void checkPlausibility2() {
         String scheduleFile = output + "manchester_schedule.xml.gz";
-        String networkFile  = output + "manchester_multimodal_network.xml.gz";
+        String networkFile  = output + "multimodal_network.xml.gz";
         String crs          = manchesterEPSG;
         // CRS "; // e.g. "EPSG:27700" or whatever you use
         String resultFolder = output + "plausibilityResults/";
