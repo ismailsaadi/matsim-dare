@@ -6,13 +6,16 @@ import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.population.*;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
+import org.matsim.core.config.groups.ReplanningConfigGroup;
 import org.matsim.core.config.groups.RoutingConfigGroup;
+import org.matsim.core.config.groups.ScoringConfigGroup;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.Controller;
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
 import org.matsim.core.controler.events.ShutdownEvent;
 import org.matsim.core.controler.listener.ShutdownListener;
 import org.matsim.core.population.io.PopulationWriter;
+import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.pt.utils.CreateVehiclesForSchedule;
 
@@ -52,6 +55,24 @@ public class simulatePT {
 
         // important: proper access/egress walk routing
         config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.walkConstantTimeToLink);
+
+        // === THIS IS THE FIX – ADD SCORING PARAMETERS FOR home AND work ===
+        config.scoring().addActivityParams(new ScoringConfigGroup.ActivityParams("home")
+                .setTypicalDuration(12 * 3600));
+        config.scoring().addActivityParams(new ScoringConfigGroup.ActivityParams("work")
+                .setTypicalDuration(8 * 3600));
+
+        // optional: make PT a bit more attractive (not required, but nice)
+        config.scoring().getModes().get("pt").setMarginalUtilityOfTraveling(-6.0);
+        config.scoring().getModes().get("pt").setConstant(-1.0);
+
+        // only rerouting (fast & sufficient for 10 agents)
+        ReplanningConfigGroup.StrategySettings strat = new ReplanningConfigGroup.StrategySettings();
+        strat.setStrategyName(DefaultPlanStrategiesModule.DefaultStrategy.ReRoute);
+        strat.setWeight(1.0);
+        config.replanning().addStrategySettings(strat);
+
+
         Scenario scenario = ScenarioUtils.loadScenario(config);
 
         // create missing transit vehicles (safety)
