@@ -18,6 +18,7 @@ import org.matsim.core.population.io.PopulationWriter;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.pt.utils.CreateVehiclesForSchedule;
+import org.matsim.simwrapper.SimWrapperModule;
 
 import java.util.Random;
 
@@ -55,6 +56,10 @@ public class simulatePT {
 
         // important: proper access/egress walk routing
         config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.walkConstantTimeToLink);
+
+        // <<< ADD THIS ONE LINE >>>
+        // config.controller().setLinkToLinkRoutingEnabled(true);
+        // config.controller().setLinkToLinkRoutingEnabled();
 
         // === THIS IS THE FIX – ADD SCORING PARAMETERS FOR home AND work ===
         config.scoring().addActivityParams(new ScoringConfigGroup.ActivityParams("home")
@@ -133,27 +138,7 @@ public class simulatePT {
         Controller controller = new Controler(scenario);
         // CORRECTED: Use addControlerListener with a ShutdownListener
 
-        controller.addControlerListener(new ShutdownListener() {
-            @Override
-            public void notifyShutdown(ShutdownEvent event) {
-                System.out.println("\n=== FINAL ACCESS & EGRESS LINKS USED ===");
-                for (Person p : pop.getPersons().values()) {
-                    for (PlanElement pe : p.getSelectedPlan().getPlanElements()) {
-                        if (pe instanceof Leg leg) {
-                            String mode = leg.getMode();
-                            if ("access_walk".equals(mode) || "egress_walk".equals(mode)) {
-                                String arrow = "access_walk".equals(mode) ? "→" : "←";
-                                System.out.printf(" %s %-12s  %s → %s%n",
-                                        arrow, p.getId(),
-                                        leg.getRoute().getStartLinkId(),
-                                        leg.getRoute().getEndLinkId());
-                            }
-                        }
-                    }
-                }
-                System.out.println("=== Simulation finished – see folder: " + outputDir + " ===\n");
-            }
-        });
+        controller.addOverridingModule(new SimWrapperModule());
 
         controller.run();
     }

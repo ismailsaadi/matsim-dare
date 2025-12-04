@@ -32,6 +32,11 @@
             <artifactId>fastutil</artifactId>
             <version>8.5.18</version>
         </dependency>
+        <dependency>
+            <groupId>org.matsim.contrib</groupId >
+            <artifactId>simwrapper</artifactId >
+            <version>2025.0</version >
+        </dependency>
     </dependencies>
 
 </project>
