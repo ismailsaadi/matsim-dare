@@ -204,6 +204,9 @@ public final class PT2MATSimExample {
         Config config = ConfigUtils.loadConfig(
                 inter + "MapperConfigDefault.xml",
                 PublicTransitMappingConfigGroup.createDefaultConfig());
+
+        config.global().setCoordinateSystem(manchesterEPSG);
+
         PublicTransitMappingConfigGroup ptmConfig = ConfigUtils.addOrGetModule(config, PublicTransitMappingConfigGroup.class);
 
         ptmConfig.setInputNetworkFile(output + "network_with_tramLinks.xml.gz");
