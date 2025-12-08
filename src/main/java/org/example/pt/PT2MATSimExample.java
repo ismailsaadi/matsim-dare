@@ -206,6 +206,7 @@ public final class PT2MATSimExample {
                 PublicTransitMappingConfigGroup.createDefaultConfig());
 
         config.global().setCoordinateSystem(manchesterEPSG);
+        config.network().setInputCRS(manchesterEPSG); // is this still working ?
 
         PublicTransitMappingConfigGroup ptmConfig = ConfigUtils.addOrGetModule(config, PublicTransitMappingConfigGroup.class);
 
@@ -217,7 +218,7 @@ public final class PT2MATSimExample {
         ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail, light_rail"));
 
 
-        // ptmConfig.getTransportModeAssignment().put("bus", Set.of("car", "bus"));
+        ptmConfig.getTransportModeAssignment().put("bus", Set.of("car", "bus"));
         ptmConfig.getTransportModeAssignment().put("tram", Set.of("tram")); // TODO: check if tram should be mapped to physical network
 
         int maxThreads = Math.min(Runtime.getRuntime().availableProcessors(), 20); // Cap at 16
