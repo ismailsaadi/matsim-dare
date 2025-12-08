@@ -210,7 +210,8 @@ public final class PT2MATSimExample {
 
         PublicTransitMappingConfigGroup ptmConfig = ConfigUtils.addOrGetModule(config, PublicTransitMappingConfigGroup.class);
 
-        ptmConfig.setInputNetworkFile(output + "network_with_tramLinks.xml.gz");
+        //ptmConfig.setInputNetworkFile(output + "network_with_tramLinks.xml.gz");
+        ptmConfig.setInputNetworkFile("/mnt/usb-TOSHIBA_EXTERNAL_USB_20241114001799F-0:0-part1/manchester/pt2matsim/output/network_with_tramLinks.xml.gz");
         ptmConfig.setOutputNetworkFile(output + "multimodal_network.xml.gz");
         ptmConfig.setOutputScheduleFile(output+ "manchester_schedule.xml.gz");
         ptmConfig.setOutputStreetNetworkFile(output + "multimodal_streetnetwork.xml.gz");
