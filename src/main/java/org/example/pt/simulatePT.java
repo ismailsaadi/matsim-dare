@@ -20,7 +20,9 @@ import org.matsim.core.scenario.ScenarioUtils;
 import org.matsim.pt.utils.CreateVehiclesForSchedule;
 import org.matsim.simwrapper.SimWrapperModule;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 public class simulatePT {
 
@@ -42,7 +44,12 @@ public class simulatePT {
         config.transit().setTransitScheduleFile(scheduleFile);
         config.transit().setVehiclesFile(vehiclesFile);
         config.transit().setUseTransit(true);
+        //
+        Set<String> transportationModes = new HashSet<>();
+        transportationModes.add("pt");
+        config.transit().setTransitModes(transportationModes);
 
+        //
         config.controller().setLastIteration(20);
         config.controller().setOutputDirectory(outputDir);
         config.controller().setOverwriteFileSetting(OverwriteFileSetting.overwriteExistingFiles);
@@ -53,6 +60,12 @@ public class simulatePT {
         config.qsim().setFlowCapFactor(1000);
         config.qsim().setStorageCapFactor(1000);
         config.qsim().setEndTime(36 * 3600);
+        Set<String> mainModes = new HashSet<>();
+        mainModes.add("car");
+        mainModes.add("tram");
+        mainModes.add("bus");
+        mainModes.add("rail");
+        config.qsim().setMainModes(mainModes);
 
         // important: proper access/egress walk routing
         config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.walkConstantTimeToLink);
