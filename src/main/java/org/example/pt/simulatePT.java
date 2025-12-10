@@ -81,6 +81,8 @@ public class simulatePT {
 
         //
         config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
+        config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
+        config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
 
 
         //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setTeleportedModeSpeed(1.38889); // ~5 km/h in m/s
@@ -101,7 +103,6 @@ public class simulatePT {
         config.qsim().setMainModes(mainModes);
 
         // important: proper access/egress walk routing
-        config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.walkConstantTimeToLink);
 
         // <<< ADD THIS ONE LINE >>>
         // config.controller().setLinkToLinkRoutingEnabled(true);
