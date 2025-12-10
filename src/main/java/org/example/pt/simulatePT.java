@@ -104,16 +104,16 @@ public class simulatePT {
         Random rnd = new Random(2025);
 
         Coord[] locations = {
-                new Coord(-2.2426, 53.4808), // Piccadilly
-                new Coord(-2.255,  53.487),  // Salford
-                new Coord(-2.284,  53.466),  // Trafford
-                new Coord(-2.225,  53.474),  // Shudehill
-                new Coord(-2.347,  53.387),  // Altrincham
-                new Coord(-2.145,  53.479),  // Victoria
-                new Coord(-2.295,  53.462),  // Old Trafford
-                new Coord(-2.238,  53.510),  // Cheetham Hill
-                new Coord(-2.180,  53.447),  // Didsbury
-                new Coord(-2.320,  53.425)   // Wythenshawe
+                new Coord(383997.433469516, 398258.3164167263), // Piccadilly
+                new Coord(383176.9864780864, 398950.96491924033), // Salford
+                new Coord(381243.3895996723, 396621.92106414476), // Trafford
+                new Coord(385163.0545203696, 397497.9561363385), // Shudehill
+                new Coord(377018.2134128619, 387851.496493614), // Altrincham
+                new Coord(390474.18371438404, 398040.4283476201), // Victoria
+                new Coord(380511.2868218826, 396179.87520340725), // Old Trafford
+                new Coord(384313.5680226146, 401505.9052472415), // Cheetham Hill
+                new Coord(388142.33324807795, 394485.61652863293), // Didsbury
+                new Coord(378832.9669145816, 392070.6823141931) // Wythenshawe
         };
 
         for (int i = 0; i < 10; i++) {
