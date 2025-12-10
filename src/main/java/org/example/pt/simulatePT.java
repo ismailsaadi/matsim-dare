@@ -1,14 +1,20 @@
 package org.example.pt;
 
+import ch.sbb.matsim.config.SwissRailRaptorConfigGroup;
+import com.google.inject.name.Names;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
+import org.matsim.api.core.v01.TransportMode;
+import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.population.*;
 import org.matsim.core.config.Config;
+import org.matsim.core.config.ConfigGroup;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.ReplanningConfigGroup;
 import org.matsim.core.config.groups.RoutingConfigGroup;
 import org.matsim.core.config.groups.ScoringConfigGroup;
+import org.matsim.core.controler.AbstractModule;
 import org.matsim.core.controler.Controler;
 import org.matsim.core.controler.Controller;
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting;
@@ -16,13 +22,30 @@ import org.matsim.core.controler.events.ShutdownEvent;
 import org.matsim.core.controler.listener.ShutdownListener;
 import org.matsim.core.population.io.PopulationWriter;
 import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
+import org.matsim.core.router.util.TravelTime;
 import org.matsim.core.scenario.ScenarioUtils;
+import org.matsim.core.utils.collections.CollectionUtils;
 import org.matsim.pt.utils.CreateVehiclesForSchedule;
 import org.matsim.simwrapper.SimWrapperModule;
+import org.matsim.vehicles.Vehicle;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+
+class WalkTravelTime implements TravelTime {
+    private final double walkSpeed;  // in m/s, e.g., 1.38889 ≈ 5 km/h
+
+    public WalkTravelTime(double speed) {
+        this.walkSpeed = speed;
+    }
+
+    @Override
+    public double getLinkTravelTime(Link link, double time, Person person, Vehicle vehicle) {
+        return link.getLength() / walkSpeed;
+    }
+}
 
 public class simulatePT {
 
@@ -55,6 +78,16 @@ public class simulatePT {
         config.controller().setOverwriteFileSetting(OverwriteFileSetting.overwriteExistingFiles);
         config.controller().setWriteEventsInterval(20);
         config.controller().setWritePlansInterval(20);
+
+        //
+        config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
+
+
+        //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setTeleportedModeSpeed(1.38889); // ~5 km/h in m/s
+        //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setBeelineDistanceFactor(1.3); // Accounts for non-straight paths
+
+        //
+        config.transitRouter().setSearchRadius(1000.0);
 
         // fast sim
         config.qsim().setFlowCapFactor(1000);
@@ -149,7 +182,17 @@ public class simulatePT {
         // PRINT ACCESS/EGRESS LINKS AT THE END
         // ============================
         Controller controller = new Controler(scenario);
-        // CORRECTED: Use addControlerListener with a ShutdownListener
+        //
+        // Override module to bind walk-specific TravelTime
+        controller.addOverridingModule(new AbstractModule() {
+            @Override
+            public void install() {
+                // Bind custom TravelTime for walk mode
+                bind(TravelTime.class).annotatedWith(Names.named(TransportMode.walk)).toInstance(new WalkTravelTime(1.38889));  // Adjust speed as needed
+
+                // Optionally, bind a custom TravelDisutility if needed (default is fine for constant speed)
+            }
+        });
 
         controller.addOverridingModule(new SimWrapperModule());
 
