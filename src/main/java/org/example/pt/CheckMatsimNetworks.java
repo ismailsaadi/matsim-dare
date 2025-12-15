@@ -41,6 +41,9 @@ public class CheckMatsimNetworks {
             }
         }
 
+        System.out.println("Number of missing nodes: " + missingNodeIds.size());
+        System.out.println("Number of missing links: " + missingLinkIds.size());
+
         if (missingNodeIds.isEmpty() && missingLinkIds.isEmpty()) {
             System.out.println("All nodes and links from the base network are present in the multimodal network.");
         } else {
