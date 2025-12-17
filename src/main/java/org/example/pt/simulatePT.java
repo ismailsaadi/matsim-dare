@@ -88,6 +88,7 @@ public class simulatePT {
         var walkParams = config.routing().getOrCreateModeRoutingParams(TransportMode.walk);
         walkParams.setTeleportedModeSpeed(null);  // disables teleportation
         walkParams.setBeelineDistanceFactor(1.3); // optional, accounts for detours
+        walkParams.setTeleportedModeFreespeedFactor(1.0);
         // No need for setNetworkModes here; the custom TravelTime binding handles network routing
 
 
