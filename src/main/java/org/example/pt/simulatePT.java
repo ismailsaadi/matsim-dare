@@ -80,6 +80,28 @@ public class simulatePT {
         config.controller().setWritePlansInterval(20);
 
         //
+        SwissRailRaptorConfigGroup srrConfig = ConfigUtils.addOrGetModule(config, SwissRailRaptorConfigGroup.class);
+        srrConfig.setUseIntermodalAccessEgress(true);
+
+        // Configure default walk (required when intermodal is enabled)
+        SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet walkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
+        walkSet.setMode(TransportMode.walk);
+        walkSet.setMaxRadius(1000.0);  // or your preferred search radius
+        srrConfig.addIntermodalAccessEgress(walkSet);
+
+        // Configure custom mode for detailed routes
+        SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessWalkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
+        accessWalkSet.setMode("access_walk");
+        accessWalkSet.setMaxRadius(2000.0);  // larger radius to encourage its use
+        srrConfig.addIntermodalAccessEgress(accessWalkSet);
+
+        // Configure "access_walk" as full network mode
+        var accessParams = config.routing().getOrCreateModeRoutingParams("access_walk");
+        accessParams.setTeleportedModeSpeed(null);                  // force network routing → full NetworkRoute
+        accessParams.setBeelineDistanceFactor(1.3);
+        accessParams.setTeleportedModeFreespeedFactor(1.0);         // dummy for consistency
+
+        //
         config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
         config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
         config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
@@ -128,6 +150,15 @@ public class simulatePT {
 
 
         Scenario scenario = ScenarioUtils.loadScenario(config);
+
+        //
+        for (Link link : scenario.getNetwork().getLinks().values()) {
+            Set<String> modes = new HashSet<>(link.getAllowedModes());
+            if (modes.contains(TransportMode.walk)) {
+                modes.add("access_walk");
+            }
+            link.setAllowedModes(modes);
+        }
 
         // create missing transit vehicles (safety)
         new CreateVehiclesForSchedule(scenario.getTransitSchedule(), scenario.getTransitVehicles()).run();
@@ -187,6 +218,7 @@ public class simulatePT {
         Controller controller = new Controler(scenario);
         //
         // Override module to bind walk-specific TravelTime
+        /*
         controller.addOverridingModule(new AbstractModule() {
             @Override
             public void install() {
@@ -194,6 +226,15 @@ public class simulatePT {
                 bind(TravelTime.class).annotatedWith(Names.named(TransportMode.walk)).toInstance(new WalkTravelTime(1.38889));  // Adjust speed as needed
 
                 // Optionally, bind a custom TravelDisutility if needed (default is fine for constant speed)
+            }
+        });
+
+         */
+
+        // In your overriding module: bind custom travel time
+        controller.addOverridingModule(new AbstractModule() {
+            @Override public void install() {
+                bind(TravelTime.class).annotatedWith(Names.named("access_walk")).toInstance(new WalkTravelTime(1.38889));
             }
         });
 
