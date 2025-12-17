@@ -81,8 +81,14 @@ public class simulatePT {
 
         //
         config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
-        config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
+        //config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
         config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
+
+        // Make walk a networked mode (no teleportation)
+        var walkParams = config.routing().getOrCreateModeRoutingParams(TransportMode.walk);
+        walkParams.setTeleportedModeSpeed(null);  // disables teleportation
+        walkParams.setBeelineDistanceFactor(1.3); // optional, accounts for detours
+        // No need for setNetworkModes here; the custom TravelTime binding handles network routing
 
 
         //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setTeleportedModeSpeed(1.38889); // ~5 km/h in m/s
