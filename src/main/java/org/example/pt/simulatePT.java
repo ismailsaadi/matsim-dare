@@ -92,7 +92,7 @@ public class simulatePT {
 
         // Configure custom mode for detailed routes
         SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessWalkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
-        walkSet.setInitialSearchRadius(1000.0);   // e.g., start searching within 500m
+        accessWalkSet.setInitialSearchRadius(1000.0);   // e.g., start searching within 500m
         accessWalkSet.setMode("access_walk");
         accessWalkSet.setMaxRadius(2000.0);  // larger radius to encourage its use
         srrConfig.addIntermodalAccessEgress(accessWalkSet);
