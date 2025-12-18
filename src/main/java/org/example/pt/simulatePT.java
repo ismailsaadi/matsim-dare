@@ -88,8 +88,8 @@ public class simulatePT {
         // Configure custom mode for detailed routes
         SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessWalkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
         accessWalkSet.setMode("access_walk");
-        accessWalkSet.setInitialSearchRadius(1000.0);   // e.g., start searching within 500m
-        accessWalkSet.setMaxRadius(2000.0);  // larger radius to encourage its use
+        accessWalkSet.setMaxRadius(5000.0);  // Allow longer walks if network allows
+        accessWalkSet.setInitialSearchRadius(2000.0);
         srrConfig.addIntermodalAccessEgress(accessWalkSet);
 
         // Configure "access_walk" as full network mode
@@ -101,8 +101,15 @@ public class simulatePT {
 
          */
 
+        // For standard walk (remove teleported params, force network)
+        config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));  // Clear defaults if needed
+        // Do NOT set teleportedModeSpeed or freespeedFactor for walk
+
+        // Add both to network modes
+        config.routing().setNetworkModes(Arrays.asList(TransportMode.walk, "access_walk"));
+
         //
-        config.routing().setNetworkModes(Arrays.asList("access_walk"));  // Add both!
+        //config.routing().setNetworkModes(Arrays.asList("access_walk"));  // Add both!
 
         // Add scoring for network-routed access_walk (critical to fix NPE)
         ScoringConfigGroup.ModeParams accessWalkModeParams = new ScoringConfigGroup.ModeParams("access_walk");
@@ -257,6 +264,7 @@ public class simulatePT {
             @Override
             public void install() {
                 bind(TravelTime.class).annotatedWith(Names.named("access_walk")).toInstance(new WalkTravelTime(1.38889));
+                bind(TravelTime.class).annotatedWith(Names.named(TransportMode.walk)).toInstance(new WalkTravelTime(1.38889));
             }
         });
 
