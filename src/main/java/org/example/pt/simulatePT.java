@@ -156,10 +156,21 @@ public class simulatePT {
         // config.controller().setLinkToLinkRoutingEnabled();
 
         // === THIS IS THE FIX – ADD SCORING PARAMETERS FOR home AND work ===
-        config.scoring().addActivityParams(new ScoringConfigGroup.ActivityParams("home")
-                .setTypicalDuration(12 * 3600));
-        config.scoring().addActivityParams(new ScoringConfigGroup.ActivityParams("work")
-                .setTypicalDuration(8 * 3600));
+
+        // After adding the basic activity params...
+        ScoringConfigGroup.ActivityParams workParams = new ScoringConfigGroup.ActivityParams("work");
+        workParams.setOpeningTime(8 * 3600);      // 8:00 AM (in seconds)
+        workParams.setLatestStartTime(10 * 3600);  // Penalize arrivals after 9:00 AM
+        workParams.setClosingTime(18 * 3600);     // 6:00 PM (optional, but recommended)
+
+        // Optional for "home" if it makes sense (e.g., no strict window, but add if needed)
+        ScoringConfigGroup.ActivityParams homeParams = new ScoringConfigGroup.ActivityParams("home");
+        homeParams.setOpeningTime(0);             // Always open, or set to evening/morning
+        homeParams.setClosingTime(24 * 3600);     // Always open
+        homeParams.setTypicalDuration(12*3600);
+
+        config.scoring().addActivityParams(homeParams);
+        config.scoring().addActivityParams(workParams);
 
         // optional: make PT a bit more attractive (not required, but nice)
         //config.scoring().getModes().get("pt").setMarginalUtilityOfTraveling(-6.0);
