@@ -93,10 +93,13 @@ public class simulatePT {
         srrConfig.addIntermodalAccessEgress(accessWalkSet);
 
         // Configure "access_walk" as full network mode
+        /*
         var accessParams = config.routing().getOrCreateModeRoutingParams("access_walk");
         accessParams.setTeleportedModeSpeed(null);                  // force network routing → full NetworkRoute
         accessParams.setBeelineDistanceFactor(1.3);
         accessParams.setTeleportedModeFreespeedFactor(1.0);         // dummy for consistency
+
+         */
 
         //
         config.routing().setNetworkModes(Arrays.asList("access_walk"));  // Add both!
