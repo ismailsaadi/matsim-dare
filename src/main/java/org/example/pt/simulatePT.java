@@ -162,6 +162,7 @@ public class simulatePT {
         workParams.setOpeningTime(8 * 3600);      // 8:00 AM (in seconds)
         workParams.setLatestStartTime(10 * 3600);  // Penalize arrivals after 9:00 AM
         workParams.setClosingTime(18 * 3600);     // 6:00 PM (optional, but recommended)
+        workParams.setTypicalDuration(8*3600);
 
         // Optional for "home" if it makes sense (e.g., no strict window, but add if needed)
         ScoringConfigGroup.ActivityParams homeParams = new ScoringConfigGroup.ActivityParams("home");
