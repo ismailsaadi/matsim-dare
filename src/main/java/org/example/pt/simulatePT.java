@@ -85,13 +85,6 @@ public class simulatePT {
         SwissRailRaptorConfigGroup srrConfig = ConfigUtils.addOrGetModule(config, SwissRailRaptorConfigGroup.class);
         srrConfig.setUseIntermodalAccessEgress(true);
 
-        // Configure default walk (required when intermodal is enabled)
-        SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet walkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
-        walkSet.setMode(TransportMode.walk);
-        walkSet.setMaxRadius(1000.0);
-        walkSet.setInitialSearchRadius(500.0);
-        srrConfig.addIntermodalAccessEgress(walkSet);
-
         // Configure custom mode for detailed routes
         SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessWalkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
         accessWalkSet.setMode("access_walk");
@@ -106,15 +99,11 @@ public class simulatePT {
         accessParams.setTeleportedModeFreespeedFactor(1.0);         // dummy for consistency
 
         //
-        config.routing().setNetworkModes(Arrays.asList("walk", "access_walk"));  // Add both!
+        config.routing().setNetworkModes(Arrays.asList("access_walk"));  // Add both!
 
         //config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
         //config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
         //config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
-
-
-
-
         //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setTeleportedModeSpeed(1.38889); // ~5 km/h in m/s
         //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setBeelineDistanceFactor(1.3); // Accounts for non-straight paths
 
@@ -257,14 +246,7 @@ public class simulatePT {
         controller.addOverridingModule(new AbstractModule() {
             @Override
             public void install() {
-                // For standard walk (required by intermodal when "walk" mode is in parameter sets)
-                bind(TravelTime.class).annotatedWith(Names.named(TransportMode.walk)).toInstance(new WalkTravelTime(1.38889));  // ~5 km/h
-
-                // For your custom access_walk
                 bind(TravelTime.class).annotatedWith(Names.named("access_walk")).toInstance(new WalkTravelTime(1.38889));
-
-                // Optional: bind TravelDisutility if you want custom costs (default is time-based, usually fine)
-                // bind(TravelDisutility.class).annotatedWith(Names.named(TransportMode.walk)).to(WalkDisutility.class);
             }
         });
 
