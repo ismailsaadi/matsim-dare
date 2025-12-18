@@ -106,6 +106,8 @@ public class simulatePT {
         accessParams.setTeleportedModeFreespeedFactor(1.0);         // dummy for consistency
 
         //
+        config.routing().setNetworkModes(Arrays.asList("walk", "access_walk"));  // Add both!
+
         //config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
         //config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
         //config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
@@ -251,9 +253,18 @@ public class simulatePT {
          */
 
         // In your overriding module: bind custom travel time
+        // Bind TravelTime (and optionally disutility) for walk and access_walk
         controller.addOverridingModule(new AbstractModule() {
-            @Override public void install() {
+            @Override
+            public void install() {
+                // For standard walk (required by intermodal when "walk" mode is in parameter sets)
+                bind(TravelTime.class).annotatedWith(Names.named(TransportMode.walk)).toInstance(new WalkTravelTime(1.38889));  // ~5 km/h
+
+                // For your custom access_walk
                 bind(TravelTime.class).annotatedWith(Names.named("access_walk")).toInstance(new WalkTravelTime(1.38889));
+
+                // Optional: bind TravelDisutility if you want custom costs (default is time-based, usually fine)
+                // bind(TravelDisutility.class).annotatedWith(Names.named(TransportMode.walk)).to(WalkDisutility.class);
             }
         });
 
