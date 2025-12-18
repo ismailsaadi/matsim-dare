@@ -104,6 +104,13 @@ public class simulatePT {
         //
         config.routing().setNetworkModes(Arrays.asList("access_walk"));  // Add both!
 
+        // Add scoring for network-routed access_walk (critical to fix NPE)
+        ScoringConfigGroup.ModeParams accessWalkModeParams = new ScoringConfigGroup.ModeParams("access_walk");
+        accessWalkModeParams.setMarginalUtilityOfTraveling(-12.0);  // Match walk or adjust
+        accessWalkModeParams.setMonetaryDistanceRate(0.0);          // Set to 0 to avoid NPE
+        accessWalkModeParams.setMarginalUtilityOfDistance(0.0);
+        config.scoring().addModeParams(accessWalkModeParams);
+
         //config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
         //config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
         //config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
