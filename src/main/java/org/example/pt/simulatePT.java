@@ -82,9 +82,21 @@ public class simulatePT {
         config.controller().setWritePlansInterval(2);
 
         //
-         /*
+
         SwissRailRaptorConfigGroup srrConfig = ConfigUtils.addOrGetModule(config, SwissRailRaptorConfigGroup.class);
         srrConfig.setUseIntermodalAccessEgress(true);
+
+        SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessWalkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
+        accessWalkSet.setMode("walk");
+        accessWalkSet.setInitialSearchRadius(500);
+        accessWalkSet.setInitialSearchRadius(5000);
+
+        SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessBikeSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
+        accessBikeSet.setMode("bike");
+        accessBikeSet.setInitialSearchRadius(500);
+        accessBikeSet.setInitialSearchRadius(5000);
+
+        /*
 
 
 
