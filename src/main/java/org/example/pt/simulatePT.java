@@ -124,6 +124,8 @@ public class simulatePT {
         // Do NOT set teleportedModeSpeed or freespeedFactor for walk
 
         // Add both to network modes
+        config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
+        config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.bike));
         config.routing().setNetworkModes(Arrays.asList(TransportMode.walk, TransportMode.bike));
 
         //
@@ -140,7 +142,6 @@ public class simulatePT {
          */
 
         //config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
-        //config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
         //config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
         //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setTeleportedModeSpeed(1.38889); // ~5 km/h in m/s
         //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setBeelineDistanceFactor(1.3); // Accounts for non-straight paths
