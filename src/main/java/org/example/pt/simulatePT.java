@@ -89,13 +89,13 @@ public class simulatePT {
         SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessWalkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
         accessWalkSet.setMode("walk");
         accessWalkSet.setInitialSearchRadius(500);
-        accessWalkSet.setInitialSearchRadius(5000);
+        accessWalkSet.setMaxRadius(5000);
         srrConfig.addIntermodalAccessEgress(accessWalkSet);
 
         SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessBikeSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
         accessBikeSet.setMode("bike");
         accessBikeSet.setInitialSearchRadius(500);
-        accessBikeSet.setInitialSearchRadius(5000);
+        accessBikeSet.setMaxRadius(5000);
         srrConfig.addIntermodalAccessEgress(accessBikeSet);
 
         /*
