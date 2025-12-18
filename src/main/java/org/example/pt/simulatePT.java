@@ -1,6 +1,7 @@
 package org.example.pt;
 
 import ch.sbb.matsim.config.SwissRailRaptorConfigGroup;
+import ch.sbb.matsim.routing.pt.raptor.SwissRailRaptorModule;
 import com.google.inject.name.Names;
 import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
@@ -67,17 +68,18 @@ public class simulatePT {
         config.transit().setTransitScheduleFile(scheduleFile);
         config.transit().setVehiclesFile(vehiclesFile);
         config.transit().setUseTransit(true);
+
         //
         Set<String> transportationModes = new HashSet<>();
         transportationModes.add("pt");
         config.transit().setTransitModes(transportationModes);
 
         //
-        config.controller().setLastIteration(20);
+        config.controller().setLastIteration(2);
         config.controller().setOutputDirectory(outputDir);
         config.controller().setOverwriteFileSetting(OverwriteFileSetting.overwriteExistingFiles);
-        config.controller().setWriteEventsInterval(20);
-        config.controller().setWritePlansInterval(20);
+        config.controller().setWriteEventsInterval(2);
+        config.controller().setWritePlansInterval(2);
 
         //
         SwissRailRaptorConfigGroup srrConfig = ConfigUtils.addOrGetModule(config, SwissRailRaptorConfigGroup.class);
@@ -85,15 +87,15 @@ public class simulatePT {
 
         // Configure default walk (required when intermodal is enabled)
         SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet walkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
-        walkSet.setInitialSearchRadius(500.0);   // e.g., start searching within 500m
         walkSet.setMode(TransportMode.walk);
-        walkSet.setMaxRadius(1000.0);  // or your preferred search radius
+        walkSet.setMaxRadius(1000.0);
+        walkSet.setInitialSearchRadius(500.0);
         srrConfig.addIntermodalAccessEgress(walkSet);
 
         // Configure custom mode for detailed routes
         SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessWalkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
-        accessWalkSet.setInitialSearchRadius(1000.0);   // e.g., start searching within 500m
         accessWalkSet.setMode("access_walk");
+        accessWalkSet.setInitialSearchRadius(1000.0);   // e.g., start searching within 500m
         accessWalkSet.setMaxRadius(2000.0);  // larger radius to encourage its use
         srrConfig.addIntermodalAccessEgress(accessWalkSet);
 
@@ -104,9 +106,9 @@ public class simulatePT {
         accessParams.setTeleportedModeFreespeedFactor(1.0);         // dummy for consistency
 
         //
-        config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
-        config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
-        config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
+        //config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
+        //config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
+        //config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
 
 
 
@@ -115,7 +117,7 @@ public class simulatePT {
         //config.routing().getOrCreateModeRoutingParams(TransportMode.walk).setBeelineDistanceFactor(1.3); // Accounts for non-straight paths
 
         //
-        config.transitRouter().setSearchRadius(1000.0);
+        //config.transitRouter().setSearchRadius(1000.0);
 
         // fast sim
         config.qsim().setFlowCapFactor(1000);
@@ -231,6 +233,21 @@ public class simulatePT {
             }
         });
 
+         */
+
+        // To use the deterministic pt simulation (Part 1 of 2):
+        // controller.addOverridingModule(new SBBTransitModule());
+
+        // To use the fast pt router (Part 1 of 1)
+        controller.addOverridingModule(new SwissRailRaptorModule());
+
+        // To use the deterministic pt simulation (Part 2 of 2):
+        /*
+        controller.configureQSimComponents(components -> {
+            new SBBTransitEngineQSimModule().configure(components);
+
+            // if you have other extensions that provide QSim components, call their configure-method here
+        });
          */
 
         // In your overriding module: bind custom travel time
