@@ -124,7 +124,7 @@ public class simulatePT {
         // Do NOT set teleportedModeSpeed or freespeedFactor for walk
 
         // Add both to network modes
-        //config.routing().setNetworkModes(Arrays.asList(TransportMode.walk, "access_walk"));
+        config.routing().setNetworkModes(Arrays.asList(TransportMode.walk, TransportMode.bike));
 
         //
         //config.routing().setNetworkModes(Arrays.asList("access_walk"));  // Add both!
