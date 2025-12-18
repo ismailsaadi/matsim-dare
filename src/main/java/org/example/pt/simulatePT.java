@@ -82,8 +82,11 @@ public class simulatePT {
         config.controller().setWritePlansInterval(2);
 
         //
+         /*
         SwissRailRaptorConfigGroup srrConfig = ConfigUtils.addOrGetModule(config, SwissRailRaptorConfigGroup.class);
         srrConfig.setUseIntermodalAccessEgress(true);
+
+
 
         // Configure custom mode for detailed routes
         SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet accessWalkSet = new SwissRailRaptorConfigGroup.IntermodalAccessEgressParameterSet();
@@ -91,6 +94,7 @@ public class simulatePT {
         accessWalkSet.setMaxRadius(5000.0);  // Allow longer walks if network allows
         accessWalkSet.setInitialSearchRadius(2000.0);
         srrConfig.addIntermodalAccessEgress(accessWalkSet);
+        */
 
         // Configure "access_walk" as full network mode
         /*
@@ -102,21 +106,24 @@ public class simulatePT {
          */
 
         // For standard walk (remove teleported params, force network)
-        config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));  // Clear defaults if needed
+        //config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));  // Clear defaults if needed
         // Do NOT set teleportedModeSpeed or freespeedFactor for walk
 
         // Add both to network modes
-        config.routing().setNetworkModes(Arrays.asList(TransportMode.walk, "access_walk"));
+        //config.routing().setNetworkModes(Arrays.asList(TransportMode.walk, "access_walk"));
 
         //
         //config.routing().setNetworkModes(Arrays.asList("access_walk"));  // Add both!
 
         // Add scoring for network-routed access_walk (critical to fix NPE)
+        /*
         ScoringConfigGroup.ModeParams accessWalkModeParams = new ScoringConfigGroup.ModeParams("access_walk");
         accessWalkModeParams.setMarginalUtilityOfTraveling(-12.0);  // Match walk or adjust
         accessWalkModeParams.setMonetaryDistanceRate(0.0);          // Set to 0 to avoid NPE
         accessWalkModeParams.setMarginalUtilityOfDistance(0.0);
         config.scoring().addModeParams(accessWalkModeParams);
+
+         */
 
         //config.routing().setNetworkModes(Arrays.asList(TransportMode.car, TransportMode.walk));
         //config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
@@ -131,12 +138,16 @@ public class simulatePT {
         config.qsim().setFlowCapFactor(1000);
         config.qsim().setStorageCapFactor(1000);
         config.qsim().setEndTime(36 * 3600);
+
+        /*
         Set<String> mainModes = new HashSet<>();
         mainModes.add("car");
-        mainModes.add("tram");
-        mainModes.add("bus");
-        mainModes.add("rail");
+        //mainModes.add("tram");
+        //mainModes.add("bus");
+        //mainModes.add("rail");
         config.qsim().setMainModes(mainModes);
+
+         */
 
         // important: proper access/egress walk routing
 
@@ -151,8 +162,8 @@ public class simulatePT {
                 .setTypicalDuration(8 * 3600));
 
         // optional: make PT a bit more attractive (not required, but nice)
-        config.scoring().getModes().get("pt").setMarginalUtilityOfTraveling(-6.0);
-        config.scoring().getModes().get("pt").setConstant(-1.0);
+        //config.scoring().getModes().get("pt").setMarginalUtilityOfTraveling(-6.0);
+        //config.scoring().getModes().get("pt").setConstant(-1.0);
 
         // only rerouting (fast & sufficient for 10 agents)
         ReplanningConfigGroup.StrategySettings strat = new ReplanningConfigGroup.StrategySettings();
@@ -164,6 +175,7 @@ public class simulatePT {
         Scenario scenario = ScenarioUtils.loadScenario(config);
 
         //
+         /*
         for (Link link : scenario.getNetwork().getLinks().values()) {
             Set<String> modes = new HashSet<>(link.getAllowedModes());
             if (modes.contains(TransportMode.walk)) {
@@ -171,6 +183,8 @@ public class simulatePT {
             }
             link.setAllowedModes(modes);
         }
+
+          */
 
         // create missing transit vehicles (safety)
         new CreateVehiclesForSchedule(scenario.getTransitSchedule(), scenario.getTransitVehicles()).run();
@@ -260,6 +274,9 @@ public class simulatePT {
 
         // In your overriding module: bind custom travel time
         // Bind TravelTime (and optionally disutility) for walk and access_walk
+
+
+        /*
         controller.addOverridingModule(new AbstractModule() {
             @Override
             public void install() {
@@ -268,7 +285,9 @@ public class simulatePT {
             }
         });
 
-        controller.addOverridingModule(new SimWrapperModule());
+         */
+
+        //controller.addOverridingModule(new SimWrapperModule());
 
         controller.run();
     }
