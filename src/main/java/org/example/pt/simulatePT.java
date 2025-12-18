@@ -127,6 +127,7 @@ public class simulatePT {
         config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.walk));
         config.routing().removeParameterSet(config.routing().getOrCreateModeRoutingParams(TransportMode.bike));
         config.routing().setNetworkModes(Arrays.asList(TransportMode.walk, TransportMode.bike));
+        config.routing().setAccessEgressType(RoutingConfigGroup.AccessEgressType.accessEgressModeToLink);
 
         //
         //config.routing().setNetworkModes(Arrays.asList("access_walk"));  // Add both!
