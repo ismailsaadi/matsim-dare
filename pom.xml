@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>en.phm</groupId>
     <artifactId>matsim-dare</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -18,6 +18,10 @@
         <repository>
             <id>pt2matsim</id>
             <url>https://repo.matsim.org/repository/matsim/</url>
+        </repository>
+        <repository>
+            <id>osgeo</id>
+            <url>https://repo.osgeo.org/repository/release</url>
         </repository>
     </repositories>
 
@@ -36,6 +40,12 @@
             <groupId>org.matsim.contrib</groupId >
             <artifactId>simwrapper</artifactId >
             <version>2025.0</version >
+        </dependency>
+        <!-- GeoPackage writer for ExportRoutesToGpkg. Pulls in geotools-jdbc + sqlite-jdbc. -->
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geopkg</artifactId>
+            <version>33.2</version>
         </dependency>
     </dependencies>
 
