@@ -21,6 +21,44 @@ mvn compile          # compile
 mvn package          # produces target/matsim-dare-1.0-SNAPSHOT.jar
 ```
 
+## GTFS data preparation
+
+The transit schedule consumed by `PT2MATSimExample` is assembled from open data
+by a set of R scripts in `src/main/java/en/phm/pt/`. They build a single
+multimodal GTFS feed for Greater Manchester from two sources — the TfGM
+tram/bus feed and the GB National Rail timetable.
+
+Inputs:
+
+- **TfGM tram + bus** — `TfGMgtfsnew.zip`, downloaded manually from TfGM open
+  data; already scoped to Greater Manchester.
+- **National Rail** — the GB-wide ATOC/CIF timetable, downloaded by the first
+  script below.
+
+Run in order — each script has a configurable block of paths/options at the top:
+
+| Script | Purpose |
+|---|---|
+| `get_rail_data.R` | Download the full GB National Rail timetable (ATOC/CIF) from the National Rail Open Data Portal via `UK2GTFS::nrdp_timetable()`. Needs free NRDP credentials in `.Renviron` (`NRDP_username` / `NRDP_password`). |
+| `convert_rail_gtfs.R` | Convert the ATOC/CIF timetable to GTFS (`UK2GTFS::atoc2gtfs()`), then clip it to Greater Manchester + a 50 km buffer. |
+| `clean_rail_gtfs.R` | Repair the rail GTFS: drop expired services, monotonic-clamp stop times (fixes ATOC half-minute conversion artifacts), drop non-standard columns. |
+| `clean_tfgm_gtfs.R` | Clean the TfGM feed: drop `block_id`, fully-expired services, and unused shapes. (Already GM-scoped, so not clipped.) |
+| `validate_gtfs_feeds.R` | Validate any feed with the MobilityData Canonical GTFS Validator (`gtfstools::validate_gtfs()`); writes an HTML/JSON report and a console summary. Run after each step to check the result. |
+| `merge_gtfs_feeds.R` | Merge the two cleaned feeds into one GTFS, prefixing every id per feed (`tfgm_*`, `rail_*`) so their independent id spaces do not collide. |
+
+The merged feed (`gtfs_gm_all_modes.zip`) is the GTFS input for
+`PT2MATSimExample` — place it under `pt2matsim/input/` (the path the Java class
+reads).
+
+Notes:
+
+- R packages (`UK2GTFS`, `gtfstools`, `sf`, `data.table`, `jsonlite`) are
+  auto-installed on first run; `UK2GTFS` comes from GitHub.
+- `validate_gtfs_feeds.R` needs Java 11+ (the project's Java 21 is fine).
+- The ATOC timetable and the merged feed are large, and `atoc2gtfs()` /
+  `write_gtfs()` stage big uncompressed temp files — point R's `TMPDIR` at a
+  drive with free space if the system drive is short.
+
 ## Pipeline (run in order)
 
 ```bash
@@ -72,7 +110,7 @@ flood depths over Greater Manchester:
 | `pt2matsim/output/` | Mapped schedule, multimodal network, plausibility results |
 | `input/mito/trafficAssignment/` | External JIBE base street network (`network_base.xml`) |
 | `output_pt_simulation/` | MATSim run outputs (plans, events, scoring) |
-| `src/main/java/en/phm/pt/` | PT pipeline sources |
+| `src/main/java/en/phm/pt/` | PT pipeline Java sources and GTFS-preparation R scripts |
 | `src/main/java/en/phm/hazard/` | Flood-exposure scripts and outputs |
 | `scripts/` | R post-processing |
 
