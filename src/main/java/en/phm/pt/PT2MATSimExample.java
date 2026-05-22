@@ -76,13 +76,11 @@ public final class PT2MATSimExample {
         // Step 1: Convert GTFS schedule to unmapped transit schedule
         gtfsToSchedule();
 
-        // Step 2: Skipped — we already have the MATSim network from JIBE
-
-        // Step 3: Map the schedule onto the network
+        // Step 2: Map the schedule onto the network
         createMapperConfigFile(INTERMEDIATE + "MapperConfigAdjusted.xml");
         PublicTransitMapper.main(new String[]{INTERMEDIATE + "MapperConfigAdjusted.xml"});
 
-        // Step 4: Plausibility check
+        // Step 3: Plausibility check
         checkPlausibility();
     }
 
@@ -105,56 +103,6 @@ public final class PT2MATSimExample {
                 INTERMEDIATE + "vehicles_unmapped.xml",    // Output vehicles
         };
         Gtfs2TransitSchedule.main(gtfsConverterArgs);
-    }
-
-    /**
-     * Converts a HAFAS/HRDF schedule to an unmapped transit schedule.
-     * Alternative to {@link #gtfsToSchedule()} when HAFAS data is available.
-     */
-    public static void hafasToSchedule() {
-        String[] hafasConverterArgs = new String[]{
-                "BrienzRothornBahn-HAFAS/",
-                "EPSG:2056",
-                INTERMEDIATE + "schedule_hafas.xml.gz",
-                INTERMEDIATE + "vehicles_hafas.xml"
-        };
-        try {
-            Hafas2TransitSchedule.main(hafasConverterArgs);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Converts an OSM file to an unmapped transit schedule.
-     * Alternative to {@link #gtfsToSchedule()} — only use when no GTFS/HAFAS data is available.
-     */
-    public static void osmToSchedule() {
-        String[] osmConverterArgs = new String[]{
-                INPUT + "addison.osm.gz",
-                INTERMEDIATE + "schedule_osm.xml.gz",
-                MANCHESTER_EPSG
-        };
-        Osm2TransitSchedule.main(osmConverterArgs);
-    }
-
-    /**
-     * Creates an OSM-to-network converter config file.
-     * Only needed if no pre-existing MATSim network is available.
-     */
-    public static void createOsmConfigFile(String configFile) {
-        CreateDefaultOsmConfig.main(new String[]{INTERMEDIATE + "OsmConverterConfigDefault.xml"});
-
-        Config osmConverterConfig = ConfigUtils.loadConfig(
-                INTERMEDIATE + "OsmConverterConfigDefault.xml",
-                new OsmConverterConfigGroup());
-
-        OsmConverterConfigGroup osmConfig = ConfigUtils.addOrGetModule(osmConverterConfig, OsmConverterConfigGroup.class);
-        osmConfig.setOsmFile(INPUT + "addison.osm.gz");
-        osmConfig.setOutputCoordinateSystem(MANCHESTER_EPSG);
-        osmConfig.setOutputNetworkFile(INTERMEDIATE + "addison.xml.gz");
-
-        new ConfigWriter(osmConverterConfig).write(configFile);
     }
 
     /**
