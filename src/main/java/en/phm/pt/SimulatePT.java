@@ -48,12 +48,14 @@ import java.util.*;
  */
 public class SimulatePT {
 
-    // Input files — all in the same directory
-    private static final String BASE =
-        "D:/Downloads/";
-    private static final String NETWORK  = BASE + "multimodal_network.xml.gz";
-    private static final String SCHEDULE = BASE + "manchester_schedule.xml.gz";
-    private static final String VEHICLES = BASE + "vehicles_unmapped.xml";
+    // Inputs — produced by the mapping step (PT2MATSimExample): the mapped
+    // network and schedule land in pt2matsim/output/, the transit vehicles in
+    // pt2matsim/intermediate/. Paths are relative to the working directory.
+    private static final String PT_OUTPUT       = "pt2matsim/output/";
+    private static final String PT_INTERMEDIATE = "pt2matsim/intermediate/";
+    private static final String NETWORK  = PT_OUTPUT + "multimodal_network.xml.gz";
+    private static final String SCHEDULE = PT_OUTPUT + "manchester_schedule.xml.gz";
+    private static final String VEHICLES = PT_INTERMEDIATE + "vehicles_unmapped.xml";
     private static final String OUTPUT   = "output_pt_simulation/";
 
     /** Representative Greater Manchester locations (EPSG:27700 / British National Grid). */
