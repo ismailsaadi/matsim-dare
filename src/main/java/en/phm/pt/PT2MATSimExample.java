@@ -96,7 +96,7 @@ public final class PT2MATSimExample {
      */
     public static void gtfsToSchedule() {
         String[] gtfsConverterArgs = new String[]{
-                INPUT + "all-modes-adjusted-gtfs.zip",  // GTFS zip file
+                INPUT + "gtfs_gm_all_modes.zip",  // GTFS zip file
                 "dayWithMostTrips",                      // Service ID selection strategy
                 MANCHESTER_EPSG,                         // Output coordinate system
                 INTERMEDIATE + "schedule_unmapped.xml.gz", // Output schedule
@@ -121,27 +121,30 @@ public final class PT2MATSimExample {
 
         PublicTransitMappingConfigGroup ptmConfig = ConfigUtils.addOrGetModule(config, PublicTransitMappingConfigGroup.class);
 
-        // Network files — base network should already include merged tram links
-        ptmConfig.setInputNetworkFile(OUTPUT + "network_with_tramLinks.xml.gz");
+        // Input: the JIBE base street network (car/walk/bike/truck) and the
+        // unmapped schedule. No tram links are merged in -- tram is freespeed-
+        // routed below, so the schedule maps directly onto the base network.
+        ptmConfig.setInputNetworkFile(EXTERNAL + "network_base.xml");
         ptmConfig.setInputScheduleFile(INTERMEDIATE + "schedule_unmapped.xml.gz");
 
         ptmConfig.setOutputNetworkFile(OUTPUT + "multimodal_network.xml.gz");
         ptmConfig.setOutputScheduleFile(OUTPUT + "manchester_schedule.xml.gz");
         ptmConfig.setOutputStreetNetworkFile(OUTPUT + "multimodal_streetnetwork.xml.gz");
 
-        // Rail and light rail use free-speed routing (no street-level mapping)
-        ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail, light_rail"));
+        // Rail and tram use free-speed routing: the base network has no rail or
+        // tram infrastructure, so these modes are mapped onto artificial links
+        // instead of the street network.
+        ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail, tram"));
 
-        // Mode-to-network mapping: buses use car/bus links; trams stick to tram links
-        // (PreparePTNetwork already added "tram" to embedded street-running sections,
-        //  so allowing "car" here would only enable spurious mapping onto unrelated roads).
+        // Mode-to-network mapping: buses are mapped onto car/bus links. Only
+        // network-routed modes need an entry here -- rail and tram are freespeed
+        // modes (above) and are therefore not listed.
         ptmConfig.getTransportModeAssignment().put("bus", Set.of("car", "bus"));
-        ptmConfig.getTransportModeAssignment().put("tram", Set.of("tram"));
 
-        // Preserve these modes during network cleanup. "tram" must be included, otherwise
-        // dedicated tram-only links not chosen by the mapper get deleted by
-        // ScheduleCleaner.removeNotUsedTransitLinks, shrinking the output network.
-        ptmConfig.setModesToKeepOnCleanUp(CollectionUtils.stringToSet("car,walk,bike,truck,tram"));
+        // Preserve the base network's modes during cleanup so links not used by
+        // any transit route are still kept -- the network must stay routable for
+        // car, walk, bike and truck.
+        ptmConfig.setModesToKeepOnCleanUp(CollectionUtils.stringToSet("car,walk,bike,truck"));
 
         // Use available cores for parallel mapping (capped at 20)
         int maxThreads = Math.min(Runtime.getRuntime().availableProcessors(), 20);
