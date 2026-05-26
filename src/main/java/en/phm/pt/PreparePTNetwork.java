@@ -31,7 +31,7 @@ public class PreparePTNetwork {
 
     public static void main(String[] args) {
         Network baseNetwork = NetworkUtils.readNetwork(EXTERNAL + "network_base.xml");
-        Network tramNetwork = NetworkUtils.readNetwork(INPUT + "greater_manchester_metrolink_matsim_network.xml.gz");
+        Network tramNetwork = NetworkUtils.readNetwork(INPUT + "greater_manchester_metrolink_matsim_network_densified.xml.gz");
 
         mergeTramNetworkIntoBase(baseNetwork, tramNetwork);
 
