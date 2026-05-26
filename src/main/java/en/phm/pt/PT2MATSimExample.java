@@ -121,9 +121,12 @@ public final class PT2MATSimExample {
 
         PublicTransitMappingConfigGroup ptmConfig = ConfigUtils.addOrGetModule(config, PublicTransitMappingConfigGroup.class);
 
-        // Input: the JIBE base street network (car/walk/bike/truck) and the
-        // unmapped schedule. No tram links are merged in -- tram is freespeed-
-        // routed below, so the schedule maps directly onto the base network.
+        // Input: the merged network from PreparePTNetwork. On top of the JIBE
+        // base (car/walk/bike/truck) it carries the Metrolink tram network:
+        //   - embedded street-running tram = existing road link with "tram"
+        //     added to its allowed modes;
+        //   - dedicated track = separate "tram_<osmID>" link allowing tram.
+        // Both kinds expose the "tram" mode, which the assignment below relies on.
         ptmConfig.setInputNetworkFile(OUTPUT + "network_base2.xml.gz");
         ptmConfig.setInputScheduleFile(INTERMEDIATE + "schedule_unmapped.xml.gz");
 
@@ -138,21 +141,21 @@ public final class PT2MATSimExample {
         ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail"));
 
         // Mode-to-network mapping:
-        //   - bus  -> {car, bus} links.
-        //   - tram -> {car, bus} links. Manchester Metrolink runs on-street
-        //     through parts of the city centre, so trams are mapped onto the
-        //     same road links buses use. Dedicated tram tracks are not present
-        //     in the JIBE base network, so the mapper will route those segments
-        //     along the nearest roads -- an approximation accepted here because
-        //     PreparePTNetwork (which would have added dedicated tram_<osmID>
-        //     links) is no longer part of the workflow.
+        //   - bus  -> {car, bus} links (buses share the road network).
+        //   - tram -> {tram} links only. Because PreparePTNetwork already adds
+        //     the "tram" mode to embedded street-running road links AND creates
+        //     dedicated "tram_<osmID>" links with the "tram" mode, restricting
+        //     the candidate set to {tram} covers both cases. Adding "car" here
+        //     would let trams snap onto unrelated roads and is intentionally
+        //     avoided.
         ptmConfig.getTransportModeAssignment().put("bus",  Set.of("car", "bus"));
-        ptmConfig.getTransportModeAssignment().put("tram", Set.of("car", "bus"));
+        ptmConfig.getTransportModeAssignment().put("tram", Set.of("tram"));
 
-        // Preserve the base network's modes during cleanup so links not used by
-        // any transit route are still kept -- the network must stay routable for
-        // car, walk, bike and truck.
-        ptmConfig.setModesToKeepOnCleanUp(CollectionUtils.stringToSet("car,walk,bike,truck"));
+        // Preserve modes during cleanup so links not used by any transit route
+        // are still kept. "tram" must be included so dedicated tram-only links
+        // the mapper didn't pick survive the cleanup -- otherwise they get
+        // pruned and the merged tram infrastructure is partially lost.
+        ptmConfig.setModesToKeepOnCleanUp(CollectionUtils.stringToSet("car,walk,bike,truck,tram"));
 
         // Use available cores for parallel mapping (capped at 20)
         int maxThreads = Math.min(Runtime.getRuntime().availableProcessors(), 20);
