@@ -131,15 +131,23 @@ public final class PT2MATSimExample {
         ptmConfig.setOutputScheduleFile(OUTPUT + "manchester_schedule.xml.gz");
         ptmConfig.setOutputStreetNetworkFile(OUTPUT + "multimodal_streetnetwork.xml.gz");
 
-        // Rail and tram use free-speed routing: the base network has no rail or
-        // tram infrastructure, so these modes are mapped onto artificial links
-        // instead of the street network.
-        ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail, tram"));
+        // Only rail stays freespeed-routed -- the base network has no heavy
+        // rail infrastructure, so rail is mapped onto artificial links. Tram is
+        // network-routed below so on-street tram segments follow the actual
+        // road geometry rather than artificial straight lines.
+        ptmConfig.setScheduleFreespeedModes(CollectionUtils.stringToSet("rail"));
 
-        // Mode-to-network mapping: buses are mapped onto car/bus links. Only
-        // network-routed modes need an entry here -- rail and tram are freespeed
-        // modes (above) and are therefore not listed.
-        ptmConfig.getTransportModeAssignment().put("bus", Set.of("car", "bus"));
+        // Mode-to-network mapping:
+        //   - bus  -> {car, bus} links.
+        //   - tram -> {car, bus} links. Manchester Metrolink runs on-street
+        //     through parts of the city centre, so trams are mapped onto the
+        //     same road links buses use. Dedicated tram tracks are not present
+        //     in the JIBE base network, so the mapper will route those segments
+        //     along the nearest roads -- an approximation accepted here because
+        //     PreparePTNetwork (which would have added dedicated tram_<osmID>
+        //     links) is no longer part of the workflow.
+        ptmConfig.getTransportModeAssignment().put("bus",  Set.of("car", "bus"));
+        ptmConfig.getTransportModeAssignment().put("tram", Set.of("car", "bus"));
 
         // Preserve the base network's modes during cleanup so links not used by
         // any transit route are still kept -- the network must stay routable for
