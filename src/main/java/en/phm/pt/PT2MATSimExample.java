@@ -124,7 +124,7 @@ public final class PT2MATSimExample {
         // Input: the JIBE base street network (car/walk/bike/truck) and the
         // unmapped schedule. No tram links are merged in -- tram is freespeed-
         // routed below, so the schedule maps directly onto the base network.
-        ptmConfig.setInputNetworkFile(EXTERNAL + "network_base.xml");
+        ptmConfig.setInputNetworkFile(OUTPUT + "network_base2.xml.gz");
         ptmConfig.setInputScheduleFile(INTERMEDIATE + "schedule_unmapped.xml.gz");
 
         ptmConfig.setOutputNetworkFile(OUTPUT + "multimodal_network.xml.gz");

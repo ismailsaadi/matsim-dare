@@ -35,7 +35,7 @@ public class PreparePTNetwork {
 
         mergeTramNetworkIntoBase(baseNetwork, tramNetwork);
 
-        NetworkUtils.writeNetwork(baseNetwork, OUTPUT + "network_with_tramLinks.xml.gz");
+        NetworkUtils.writeNetwork(baseNetwork, OUTPUT + "network_base2.xml.gz");
         System.out.println("Tram network merged successfully.");
     }
 
